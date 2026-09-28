@@ -32,10 +32,6 @@ $table->string('name_arabic');
 
 $table->string('name_english');
 
-$table->string('name_urdu')
-->nullable();
-
-
 
 $table->enum(
 'revelation_type',

@@ -15,6 +15,7 @@
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('customcss/theme.css') }}">
     <script src="{{ asset('js/bootstrap.bundle.js') }}"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -31,8 +32,7 @@
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    <img src="{{ asset('c2.png') }}" class="img-fluid" style="max-height: 65px; width: auto;"
-                        alt="{{ config('app.name', 'Laravel') }}">
+                   Quran Dot Com
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"

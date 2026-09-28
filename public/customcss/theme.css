@@ -1,0 +1,1124 @@
+/* ==========================================================================
+   QURAN READER THEME  —  quran-theme.css
+   For Bootstrap 5.3+ (load AFTER bootstrap.min.css)
+
+   Contents
+   1. Fonts (Google Fonts)
+   2. Design tokens (light / dark / sepia)
+   3. Bootstrap overrides (colors, buttons, navbar, cards, forms, etc.)
+   4. Language font classes  (.lang-ar, .lang-ur, .lang-en, ...)
+   5. Quran reader components (surah header, ayah, verse number, toolbar)
+   6. Reader size / mode helpers
+   7. Accessibility + motion
+
+   Switch mode with:  <html data-bs-theme="light | dark | sepia">
+   ========================================================================== */
+
+
+/* ---------- 1. FONTS ------------------------------------------------------
+   Trim this list to only the languages you actually launch with —
+   every family adds download weight (Nastaliq is the heaviest). */
+
+@import url("https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Scheherazade+New:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Nastaliq+Urdu:wght@400;600&family=Vazirmatn:wght@400;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Manrope:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Tamil:wght@400;600&family=Noto+Sans+Malayalam:wght@400;600&family=Noto+Sans+SC:wght@400;600&family=Noto+Sans+JP:wght@400;600&family=Noto+Sans+KR:wght@400;600&family=Noto+Sans+Thai:wght@400;600&display=swap");
+
+/* ---------- 2. DESIGN TOKENS ---------------------------------------------- */
+
+:root,
+[data-bs-theme="light"] {
+    /* Palette: lapis-teal ink, manuscript gold, cool paper */
+    --qt-primary: #1b6b63;
+    --qt-primary-rgb: 27, 107, 99;
+    --qt-primary-dark: #124a45;
+    --qt-primary-soft: #e3f0ee;
+    --qt-on-primary: #ffffff;
+    --qt-gold: #a67c2e;
+    --qt-gold-soft: #f4ead2;
+    --qt-bg: #f6f7f3;
+    --qt-surface: #ffffff;
+    --qt-surface-2: #eef1ec;
+    --qt-border: #dde3dc;
+    --qt-text: #1d2b2a;
+    --qt-muted: #5c6c69;
+    --qt-arabic-text: #10302f;
+    --qt-shadow: 0 1px 2px rgba(16, 48, 47, .06), 0 6px 20px rgba(16, 48, 47, .06);
+    /* Font stacks — change a family here and every language class follows */
+    --font-ui: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-en: "Literata", Georgia, "Times New Roman", serif;
+    /* <- swap for your site's English font */
+    --font-latin: "Literata", Georgia, "Times New Roman", serif;
+    /* French, Spanish, German, Turkish, Indonesian... */
+    --font-ar: "Amiri Quran", "Scheherazade New", "Noto Naskh Arabic", "Traditional Arabic", serif;
+    --font-ar-ui: "Noto Naskh Arabic", "Scheherazade New", "Traditional Arabic", serif;
+    --font-ur: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Alvi Nastaleeq", "Noto Naskh Arabic", serif;
+    --font-fa: "Vazirmatn", "Noto Naskh Arabic", Tahoma, sans-serif;
+    --font-bn: "Noto Sans Bengali", "Hind Siliguri", "Kalpurush", sans-serif;
+    --font-hi: "Noto Sans Devanagari", "Mangal", sans-serif;
+    --font-ta: "Noto Sans Tamil", "Latha", sans-serif;
+    --font-ml: "Noto Sans Malayalam", "Kartika", sans-serif;
+    --font-zh: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-ja: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+    --font-ko: "Noto Sans KR", "Malgun Gothic", sans-serif;
+    --font-th: "Noto Sans Thai", Tahoma, sans-serif;
+    /* Reader sizes (changed by .reader-size-* classes) */
+    --qt-ar-size: 2.1rem;
+    --qt-tr-size: 1.1rem;
+    /* Bootstrap variable overrides */
+    --bs-primary: var(--qt-primary);
+    --bs-primary-rgb: var(--qt-primary-rgb);
+    --bs-link-color: var(--qt-primary);
+    --bs-link-color-rgb: var(--qt-primary-rgb);
+    --bs-link-hover-color: var(--qt-primary-dark);
+    --bs-body-font-family: var(--font-ui);
+    --bs-body-bg: var(--qt-bg);
+    --bs-body-color: var(--qt-text);
+    --bs-secondary-color: var(--qt-muted);
+    --bs-tertiary-bg: var(--qt-surface-2);
+    --bs-border-color: var(--qt-border);
+    --bs-border-radius: .6rem;
+    --bs-border-radius-lg: .9rem;
+    --bs-focus-ring-color: rgba(var(--qt-primary-rgb), .3);
+}
+
+[data-bs-theme="dark"] {
+    --qt-primary: #4fb3a5;
+    --qt-primary-rgb: 79, 179, 165;
+    --qt-primary-dark: #7fcfc3;
+    --qt-primary-soft: #17302e;
+    --qt-on-primary: #08201d;
+    --qt-gold: #d3ad5f;
+    --qt-gold-soft: #2c2716;
+    --qt-bg: #0e1a19;
+    --qt-surface: #142322;
+    --qt-surface-2: #1a2e2c;
+    --qt-border: #274240;
+    --qt-text: #e4ebe8;
+    --qt-muted: #93a6a2;
+    --qt-arabic-text: #f1f5f3;
+    --qt-shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+    --bs-emphasis-color: #ffffff;
+}
+
+[data-bs-theme="sepia"] {
+    --qt-primary: #2f6b5f;
+    --qt-primary-rgb: 47, 107, 95;
+    --qt-primary-dark: #1f4a41;
+    --qt-primary-soft: #e6e9d6;
+    --qt-on-primary: #ffffff;
+    --qt-gold: #96691f;
+    --qt-gold-soft: #ecdcb8;
+    --qt-bg: #f1e8d4;
+    --qt-surface: #f9f2e1;
+    --qt-surface-2: #eadfc6;
+    --qt-border: #d9cbaa;
+    --qt-text: #3a2f1f;
+    --qt-muted: #74654c;
+    --qt-arabic-text: #2b2113;
+    --qt-shadow: 0 1px 2px rgba(58, 47, 31, .08), 0 6px 20px rgba(58, 47, 31, .08);
+}
+
+
+/* ---------- 3. BOOTSTRAP OVERRIDES ---------------------------------------- */
+
+body {
+    background-color: var(--qt-bg);
+    color: var(--qt-text);
+    font-family: var(--font-ui);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+    font-family: var(--font-en);
+    font-weight: 600;
+    letter-spacing: -.01em;
+    color: var(--qt-text);
+}
+
+a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+
+/* Buttons */
+
+.btn {
+    font-weight: 600;
+    border-radius: var(--bs-border-radius);
+    transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s;
+}
+
+.btn-primary {
+    --bs-btn-color: var(--qt-on-primary);
+    --bs-btn-bg: var(--qt-primary);
+    --bs-btn-border-color: var(--qt-primary);
+    --bs-btn-hover-color: var(--qt-on-primary);
+    --bs-btn-hover-bg: var(--qt-primary-dark);
+    --bs-btn-hover-border-color: var(--qt-primary-dark);
+    --bs-btn-active-color: var(--qt-on-primary);
+    --bs-btn-active-bg: var(--qt-primary-dark);
+    --bs-btn-active-border-color: var(--qt-primary-dark);
+    --bs-btn-disabled-color: var(--qt-on-primary);
+    --bs-btn-disabled-bg: var(--qt-primary);
+    --bs-btn-disabled-border-color: var(--qt-primary);
+    --bs-btn-focus-shadow-rgb: var(--qt-primary-rgb);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--qt-primary);
+    --bs-btn-border-color: var(--qt-primary);
+    --bs-btn-hover-color: var(--qt-on-primary);
+    --bs-btn-hover-bg: var(--qt-primary);
+    --bs-btn-hover-border-color: var(--qt-primary);
+    --bs-btn-active-color: var(--qt-on-primary);
+    --bs-btn-active-bg: var(--qt-primary-dark);
+    --bs-btn-active-border-color: var(--qt-primary-dark);
+    --bs-btn-focus-shadow-rgb: var(--qt-primary-rgb);
+}
+
+.btn-gold {
+    --bs-btn-color: #ffffff;
+    --bs-btn-bg: var(--qt-gold);
+    --bs-btn-border-color: var(--qt-gold);
+    --bs-btn-hover-color: #ffffff;
+    --bs-btn-hover-bg: #8a6624;
+    --bs-btn-hover-border-color: #8a6624;
+}
+
+.btn-soft {
+    background: var(--qt-primary-soft);
+    color: var(--qt-primary);
+    border: 1px solid transparent;
+}
+
+.btn-soft:hover {
+    background: var(--qt-primary);
+    color: var(--qt-on-primary);
+}
+
+.btn-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.text-primary {
+    color: var(--qt-primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--qt-primary) !important;
+    color: var(--qt-on-primary);
+}
+
+.border-primary {
+    border-color: var(--qt-primary) !important;
+}
+
+.text-gold {
+    color: var(--qt-gold) !important;
+}
+
+.bg-gold-soft {
+    background-color: var(--qt-gold-soft) !important;
+}
+
+.bg-primary-soft {
+    background-color: var(--qt-primary-soft) !important;
+}
+
+.bg-surface {
+    background-color: var(--qt-surface) !important;
+}
+
+.bg-surface-2 {
+    background-color: var(--qt-surface-2) !important;
+}
+
+
+/* Navbar */
+
+.navbar-quran {
+    background: var(--qt-surface);
+    border-bottom: 1px solid var(--qt-border);
+    backdrop-filter: saturate(1.4) blur(8px);
+}
+
+.navbar-quran .navbar-brand {
+    font-family: var(--font-en);
+    font-weight: 600;
+    color: var(--qt-primary);
+}
+
+.navbar-quran .nav-link {
+    color: var(--qt-muted);
+    font-weight: 500;
+}
+
+.navbar-quran .nav-link:hover,
+.navbar-quran .nav-link.active {
+    color: var(--qt-primary);
+}
+
+
+/* Cards */
+
+.card {
+    --bs-card-bg: var(--qt-surface);
+    --bs-card-border-color: var(--qt-border);
+    --bs-card-cap-bg: var(--qt-surface-2);
+    border-radius: var(--bs-border-radius-lg);
+}
+
+.card-quran {
+    box-shadow: var(--qt-shadow);
+    border: 1px solid var(--qt-border);
+}
+
+.card-hover {
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.card-hover:hover {
+    border-color: var(--qt-primary);
+    box-shadow: var(--qt-shadow);
+}
+
+
+/* Forms */
+
+.form-control,
+.form-select {
+    background-color: var(--qt-surface);
+    border-color: var(--qt-border);
+    color: var(--qt-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--qt-primary);
+    box-shadow: 0 0 0 .25rem rgba(var(--qt-primary-rgb), .18);
+    background-color: var(--qt-surface);
+    color: var(--qt-text);
+}
+
+.form-check-input:checked {
+    background-color: var(--qt-primary);
+    border-color: var(--qt-primary);
+}
+
+.form-check-input:focus {
+    border-color: var(--qt-primary);
+    box-shadow: 0 0 0 .25rem rgba(var(--qt-primary-rgb), .18);
+}
+
+.form-range::-webkit-slider-thumb {
+    background: var(--qt-primary);
+}
+
+.form-range::-moz-range-thumb {
+    background: var(--qt-primary);
+}
+
+
+/* Nav pills / tabs */
+
+.nav-pills {
+    --bs-nav-pills-link-active-bg: var(--qt-primary);
+    --bs-nav-pills-link-active-color: var(--qt-on-primary);
+}
+
+.nav-tabs {
+    --bs-nav-tabs-link-active-border-color: var(--qt-border) var(--qt-border) var(--qt-bg);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--qt-primary);
+    background: var(--qt-bg);
+}
+
+
+/* Pagination */
+
+.pagination {
+    --bs-pagination-color: var(--qt-primary);
+    --bs-pagination-bg: var(--qt-surface);
+    --bs-pagination-border-color: var(--qt-border);
+    --bs-pagination-hover-color: var(--qt-primary-dark);
+    --bs-pagination-hover-bg: var(--qt-primary-soft);
+    --bs-pagination-hover-border-color: var(--qt-border);
+    --bs-pagination-active-bg: var(--qt-primary);
+    --bs-pagination-active-border-color: var(--qt-primary);
+    --bs-pagination-active-color: var(--qt-on-primary);
+    --bs-pagination-focus-color: var(--qt-primary-dark);
+    --bs-pagination-focus-bg: var(--qt-primary-soft);
+}
+
+
+/* Badges, list groups, dropdowns, offcanvas, modals */
+
+.badge-soft {
+    background: var(--qt-primary-soft);
+    color: var(--qt-primary);
+    font-weight: 600;
+}
+
+.badge-gold {
+    background: var(--qt-gold-soft);
+    color: var(--qt-gold);
+    font-weight: 600;
+}
+
+.list-group {
+    --bs-list-group-bg: var(--qt-surface);
+    --bs-list-group-border-color: var(--qt-border);
+    --bs-list-group-action-hover-bg: var(--qt-surface-2);
+}
+
+.list-group-item.active {
+    background: var(--qt-primary);
+    border-color: var(--qt-primary);
+    color: var(--qt-on-primary);
+}
+
+.dropdown-menu {
+    --bs-dropdown-bg: var(--qt-surface);
+    --bs-dropdown-border-color: var(--qt-border);
+    --bs-dropdown-link-hover-bg: var(--qt-surface-2);
+    --bs-dropdown-link-active-bg: var(--qt-primary);
+    box-shadow: var(--qt-shadow);
+}
+
+.offcanvas,
+.modal-content {
+    background: var(--qt-surface);
+    border-color: var(--qt-border);
+}
+
+.progress {
+    --bs-progress-bg: var(--qt-surface-2);
+    --bs-progress-bar-bg: var(--qt-primary);
+    height: .5rem;
+}
+
+
+/* Section helpers */
+
+.section-title {
+    font-family: var(--font-en);
+    font-weight: 600;
+}
+
+.divider-gold {
+    height: 2px;
+    width: 3.5rem;
+    background: var(--qt-gold);
+    border: 0;
+    opacity: 1;
+    margin: .75rem 0;
+}
+
+.divider-gold.mx-auto {
+    margin-inline: auto;
+}
+
+
+/* ---------- 4. LANGUAGE FONT CLASSES ---------------------------------------
+   Usage:  <p class="lang-ur">...</p>   <div class="lang-ar ayah-arabic">...</div>
+   RTL languages also set direction + text-align automatically. */
+
+
+/* Arabic (Quran text) */
+
+.lang-ar {
+    font-family: var(--font-ar);
+    direction: rtl;
+    text-align: right;
+    line-height: 2.3;
+    font-feature-settings: "liga" 1, "calt" 1;
+}
+
+
+/* Arabic for UI / tafsir prose (lighter than Quranic script) */
+
+.lang-ar-ui {
+    font-family: var(--font-ar-ui);
+    direction: rtl;
+    text-align: right;
+    line-height: 2;
+}
+
+
+/* Urdu (Nastaliq needs tall lines or the script clips) */
+
+.lang-ur {
+    font-family: var(--font-ur);
+    direction: rtl;
+    text-align: right;
+    line-height: 2.6;
+    word-spacing: .05em;
+}
+
+
+/* Persian */
+
+.lang-fa {
+    font-family: var(--font-fa);
+    direction: rtl;
+    text-align: right;
+    line-height: 2;
+}
+
+
+/* Pashto / Sindhi / Kurdish (Sorani) / Uyghur — Arabic-script family */
+
+.lang-ps,
+.lang-sd,
+.lang-ku,
+.lang-ug {
+    font-family: var(--font-ar-ui);
+    direction: rtl;
+    text-align: right;
+    line-height: 2.1;
+}
+
+
+/* Sindhi looks best in Naskh; Pashto too — override here if you add a custom font */
+
+
+/* Latin-script languages */
+
+.lang-en {
+    font-family: var(--font-en);
+    line-height: 1.75;
+}
+
+.lang-fr,
+.lang-es,
+.lang-de,
+.lang-it,
+.lang-pt,
+.lang-nl,
+.lang-tr,
+.lang-id,
+.lang-ms,
+.lang-sw,
+.lang-so,
+.lang-ha,
+.lang-sq,
+.lang-bs {
+    font-family: var(--font-latin);
+    line-height: 1.75;
+}
+
+.lang-fr {
+    hyphens: auto;
+}
+
+.lang-de {
+    hyphens: auto;
+}
+
+
+/* Cyrillic (Russian, Tatar, Uzbek-Cyrillic...) — Literata covers Cyrillic */
+
+.lang-ru,
+.lang-tt,
+.lang-kk {
+    font-family: var(--font-latin);
+    line-height: 1.75;
+}
+
+
+/* Indic + Southeast Asian */
+
+.lang-bn {
+    font-family: var(--font-bn);
+    line-height: 2;
+}
+
+.lang-hi,
+.lang-mr,
+.lang-ne {
+    font-family: var(--font-hi);
+    line-height: 1.95;
+}
+
+.lang-ta {
+    font-family: var(--font-ta);
+    line-height: 2;
+}
+
+.lang-ml {
+    font-family: var(--font-ml);
+    line-height: 2.1;
+}
+
+.lang-th {
+    font-family: var(--font-th);
+    line-height: 2;
+}
+
+
+/* East Asian */
+
+.lang-zh {
+    font-family: var(--font-zh);
+    line-height: 1.9;
+    letter-spacing: .02em;
+}
+
+.lang-ja {
+    font-family: var(--font-ja);
+    line-height: 1.95;
+}
+
+.lang-ko {
+    font-family: var(--font-ko);
+    line-height: 1.9;
+}
+
+
+/* Direction helpers for mixed layouts */
+
+.dir-rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+.dir-ltr {
+    direction: ltr;
+    text-align: left;
+}
+
+
+/* Translation text picks up the reader size variable in any language */
+
+.ayah-translation[class*="lang-"] {
+    font-size: var(--qt-tr-size);
+}
+
+.ayah-arabic.lang-ar {
+    font-size: var(--qt-ar-size);
+}
+
+
+/* Nastaliq reads small — bump it a little */
+
+.ayah-translation.lang-ur {
+    font-size: calc(var(--qt-tr-size) * 1.15);
+}
+
+
+/* CJK/Indic scripts are denser — keep them slightly larger */
+
+.ayah-translation.lang-zh,
+.ayah-translation.lang-ja,
+.ayah-translation.lang-ko {
+    font-size: calc(var(--qt-tr-size) * 1.05);
+}
+
+
+/* ---------- 5. QURAN READER COMPONENTS ------------------------------------ */
+
+
+/* Surah header banner */
+
+.surah-header {
+    position: relative;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    background: radial-gradient(circle at 50% 0, rgba(var(--qt-primary-rgb), .10), transparent 65%), var(--qt-surface);
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius-lg);
+    box-shadow: var(--qt-shadow);
+}
+
+.surah-header::before,
+.surah-header::after {
+    content: "";
+    position: absolute;
+    inset-inline: 1.25rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--qt-gold), transparent);
+}
+
+.surah-header::before {
+    top: .6rem;
+}
+
+.surah-header::after {
+    bottom: .6rem;
+}
+
+.surah-name-ar {
+    font-family: var(--font-ar);
+    font-size: 2.6rem;
+    line-height: 1.6;
+    color: var(--qt-arabic-text);
+    direction: rtl;
+}
+
+.surah-name-en {
+    font-family: var(--font-en);
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.surah-meta {
+    color: var(--qt-muted);
+    font-size: .9rem;
+}
+
+
+/* Bismillah line */
+
+.bismillah {
+    font-family: var(--font-ar);
+    font-size: calc(var(--qt-ar-size) * 1.15);
+    color: var(--qt-gold);
+    text-align: center;
+    direction: rtl;
+    line-height: 2.2;
+    padding-block: 1rem;
+}
+
+
+/* Surah list item (index page) */
+
+.surah-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .9rem 1rem;
+    background: var(--qt-surface);
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color .15s, background-color .15s;
+}
+
+.surah-item:hover {
+    border-color: var(--qt-primary);
+    background: var(--qt-primary-soft);
+    color: inherit;
+}
+
+.surah-item .surah-no {
+    flex: 0 0 auto;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: .9rem;
+    color: var(--qt-primary);
+    border: 1.5px solid var(--qt-gold);
+    border-radius: 50%;
+}
+
+.surah-item .surah-ar {
+    margin-inline-start: auto;
+    font-family: var(--font-ar);
+    font-size: 1.5rem;
+    color: var(--qt-arabic-text);
+}
+
+
+/* One ayah block */
+
+.ayah {
+    position: relative;
+    padding: 1.25rem 1.25rem 1rem;
+    background: var(--qt-surface);
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius-lg);
+    margin-bottom: 1rem;
+    scroll-margin-top: 5.5rem;
+}
+
+.ayah.is-active,
+.ayah:target {
+    border-color: var(--qt-primary);
+    box-shadow: 0 0 0 3px rgba(var(--qt-primary-rgb), .15);
+}
+
+.ayah.is-playing {
+    background: var(--qt-primary-soft);
+}
+
+.ayah-arabic {
+    font-family: var(--font-ar);
+    font-size: var(--qt-ar-size);
+    line-height: 2.4;
+    color: var(--qt-arabic-text);
+    direction: rtl;
+    text-align: right;
+    margin-bottom: 1rem;
+}
+
+.ayah-translation {
+    font-size: var(--qt-tr-size);
+    color: var(--qt-text);
+    padding-top: .9rem;
+    border-top: 1px dashed var(--qt-border);
+}
+
+.ayah-translation+.ayah-translation {
+    margin-top: .9rem;
+}
+
+.ayah-translator {
+    display: block;
+    margin-top: .35rem;
+    font-family: var(--font-ui);
+    font-size: .78rem;
+    color: var(--qt-muted);
+}
+
+.ayah-lang-tag {
+    display: inline-block;
+    margin-inline-end: .5rem;
+    padding: .05rem .5rem;
+    border-radius: 999px;
+    background: var(--qt-primary-soft);
+    color: var(--qt-primary);
+    font-family: var(--font-ui);
+    font-size: .72rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+
+/* Verse-end marker: <span class="ayah-number">12</span> */
+
+.ayah-number {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding-inline: .3rem;
+    margin-inline: .4rem;
+    font-family: var(--font-ui);
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--qt-gold);
+    border: 1.5px solid var(--qt-gold);
+    border-radius: 50%;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+
+/* Per-ayah actions: copy, bookmark, share, play, tafsir */
+
+.ayah-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+    margin-top: .75rem;
+}
+
+.ayah-actions .btn {
+    --bs-btn-padding-y: .25rem;
+    --bs-btn-padding-x: .6rem;
+    --bs-btn-font-size: .82rem;
+    color: var(--qt-muted);
+}
+
+.ayah-actions .btn:hover {
+    color: var(--qt-primary);
+    background: var(--qt-primary-soft);
+}
+
+.ayah-actions .btn.is-on {
+    color: var(--qt-gold);
+}
+
+
+/* Reader toolbar (sticky under navbar): language picker, size, mode */
+
+.reader-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem .75rem;
+    padding: .6rem 1rem;
+    background: color-mix(in srgb, var(--qt-surface) 92%, transparent);
+    border-bottom: 1px solid var(--qt-border);
+    backdrop-filter: blur(8px);
+}
+
+
+/* Language chips (choose which translations to show) */
+
+.lang-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .8rem;
+    border: 1px solid var(--qt-border);
+    border-radius: 999px;
+    background: var(--qt-surface);
+    color: var(--qt-muted);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color .15s, color .15s, border-color .15s;
+}
+
+.lang-chip:hover {
+    border-color: var(--qt-primary);
+    color: var(--qt-primary);
+}
+
+.lang-chip.active {
+    background: var(--qt-primary);
+    border-color: var(--qt-primary);
+    color: var(--qt-on-primary);
+}
+
+
+/* Audio bar */
+
+.audio-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 1030;
+    padding: .6rem 1rem;
+    background: var(--qt-surface);
+    border-top: 1px solid var(--qt-border);
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, .06);
+}
+
+
+/* Footer */
+
+.footer-quran {
+    background: var(--qt-surface);
+    border-top: 1px solid var(--qt-border);
+    color: var(--qt-muted);
+}
+
+
+/* Reading column width */
+
+.reader-column {
+    max-width: 52rem;
+    margin-inline: auto;
+}
+
+
+/* ---------- 6. READER SIZE HELPERS ----------------------------------------
+   Put on <body> or the reader wrapper:  <div class="reader-size-lg"> */
+
+.reader-size-sm {
+    --qt-ar-size: 1.7rem;
+    --qt-tr-size: .95rem;
+}
+
+.reader-size-md {
+    --qt-ar-size: 2.1rem;
+    --qt-tr-size: 1.1rem;
+}
+
+.reader-size-lg {
+    --qt-ar-size: 2.6rem;
+    --qt-tr-size: 1.25rem;
+}
+
+.reader-size-xl {
+    --qt-ar-size: 3.2rem;
+    --qt-tr-size: 1.4rem;
+}
+
+@media (max-width: 575.98px) {
+     :root {
+        --qt-ar-size: 1.8rem;
+        --qt-tr-size: 1rem;
+    }
+    .reader-size-md {
+        --qt-ar-size: 1.8rem;
+        --qt-tr-size: 1rem;
+    }
+    .reader-size-lg {
+        --qt-ar-size: 2.2rem;
+        --qt-tr-size: 1.1rem;
+    }
+    .reader-size-xl {
+        --qt-ar-size: 2.7rem;
+        --qt-tr-size: 1.25rem;
+    }
+    .surah-name-ar {
+        font-size: 2.1rem;
+    }
+    .ayah {
+        padding: 1rem;
+    }
+}
+
+
+/* ---------- 7. ACCESSIBILITY + MOTION ------------------------------------- */
+
+:focus-visible {
+    outline: 2px solid var(--qt-primary);
+    outline-offset: 2px;
+}
+
+::selection {
+    background: rgba(var(--qt-primary-rgb), .22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+@media print {
+    .navbar-quran,
+    .reader-toolbar,
+    .audio-bar,
+    .ayah-actions {
+        display: none !important;
+    }
+    .ayah {
+        break-inside: avoid;
+        border-color: #ccc;
+        box-shadow: none;
+    }
+}
+
+
+/* ---------- 8. HOME HERO --------------------------------------------------
+   Used on the welcome page: Bismillah, headline, language chips, stats strip */
+
+.hero-quran {
+    position: relative;
+    padding: clamp(3rem, 8vw, 5.5rem) 0 clamp(2.5rem, 6vw, 4rem);
+    text-align: center;
+    border-bottom: 1px solid var(--qt-border);
+    background: radial-gradient(ellipse 60% 55% at 50% 0, rgba(var(--qt-primary-rgb), .12), transparent 70%), linear-gradient(45deg, transparent 48.5%, rgba(166, 124, 46, .10) 49%, rgba(166, 124, 46, .10) 51%, transparent 51.5%) 0 0 / 44px 44px, linear-gradient(-45deg, transparent 48.5%, rgba(166, 124, 46, .10) 49%, rgba(166, 124, 46, .10) 51%, transparent 51.5%) 0 0 / 44px 44px, var(--qt-bg);
+}
+
+.hero-bismillah {
+    font-family: var(--font-ar);
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    line-height: 2.1;
+    color: var(--qt-arabic-text);
+    direction: rtl;
+    margin-bottom: .5rem;
+}
+
+.hero-title {
+    font-family: var(--font-en);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 4.6vw, 3rem);
+    line-height: 1.2;
+    max-width: 20ch;
+    margin: 0 auto 1rem;
+}
+
+.hero-lead {
+    max-width: 40rem;
+    margin: 0 auto 1.75rem;
+    color: var(--qt-muted);
+    font-size: 1.1rem;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .75rem;
+    margin-bottom: 2rem;
+}
+
+.hero-langs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .5rem;
+    max-width: 46rem;
+    margin: 0 auto 2.5rem;
+}
+
+.hero-langs .lang-chip {
+    cursor: default;
+    font-size: 1rem;
+    line-height: 1.8;
+    padding-block: .15rem;
+}
+
+.hero-langs .lang-chip.lang-ur {
+    line-height: 2.4;
+}
+
+.hero-langs .lang-chip:hover {
+    border-color: var(--qt-border);
+    color: var(--qt-muted);
+}
+
+.hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    max-width: 44rem;
+    margin: 0 auto;
+    background: var(--qt-border);
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--qt-shadow);
+}
+
+.hero-stat {
+    padding: 1.1rem .75rem;
+    background: var(--qt-surface);
+}
+
+.hero-stat-num {
+    display: block;
+    font-family: var(--font-en);
+    font-weight: 600;
+    font-size: 1.9rem;
+    line-height: 1.2;
+    color: var(--qt-primary);
+}
+
+.hero-stat-label {
+    color: var(--qt-muted);
+    font-size: .9rem;
+}
+
+@media (min-width: 576px) {
+    .hero-stats {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

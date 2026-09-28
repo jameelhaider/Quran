@@ -1,26 +1,34 @@
 <?php
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\QuranController;
 use App\Models\Quran;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
+
+
 Route::get('/', function () {
-     $quran = Quran::with([
-            'surahs',
-            'juzs',
-            'hizbs',
-            'manzils'
-        ])
-        ->first();
-    return view('welcome',compact('quran'));
+     $totalsurahs=DB::table('surahs')->count();
+     $totalAyahs=DB::table('ayahs')->count();
+     $totalJuzs=DB::table('juzs')->count();
+     $totalManzils=DB::table('manzils')->count();
+    return view('welcome',compact('totalsurahs','totalAyahs','totalManzils','totalJuzs'));
 });
 
-
-    Route::get(
-    '/quran/surah/{surah}',
-    [QuranController::class,'surah']
+   Route::get(
+    '/surahs',
+    [QuranController::class,'surahs']
 )
-->name('quran.surah');
+->name('quran.read');
+
+
+
+//     Route::get(
+//     '/quran/surah/{surah}',
+//     [QuranController::class,'surah']
+// )
+// ->name('quran.surah');
 
 
 

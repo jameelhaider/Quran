@@ -32,9 +32,6 @@ $table->string('name_english')
 ->nullable();
 
 
-$table->string('name_urdu')
-->nullable();
-
 
     // Starting point
 
