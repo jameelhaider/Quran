@@ -12,7 +12,7 @@
         <div class="hero-actions">
             {{-- Replace with your named routes --}}
             <a href="{{ url('/surahs') }}" class="btn btn-primary btn-lg px-4">Start reading</a>
-            <a href="{{ url('/translations') }}" class="btn btn-outline-primary btn-lg px-4">Browse translations</a>
+            <a href="{{ url('/surahs/1') }}" class="btn btn-outline-primary btn-lg px-4">Browse translations</a>
         </div>
 
         <div class="hero-langs" aria-label="Available translation languages">

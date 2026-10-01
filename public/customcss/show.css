@@ -1,0 +1,967 @@
+/* ==========================================================================
+   SURAH READING VIEW  —  surahshow.css
+   Styles for resources/views/surahs/show.blade.php only.
+
+   Load order:
+   1. bootstrap.min.css
+   2. quran-theme.css   (--qt-* tokens, --font-* vars, light/dark/sepia)
+   3. surahshow.css     (this file)
+
+   Hooks owned by surahshow.js (do not rename):
+   #surahPage .is-loading / .hide-translit / .hide-translation
+   .ay.is-target (jump highlight, fades out by itself after 2s)
+   [data-translation].is-missing, #bismillahTranslation[hidden]
+   ========================================================================== */
+
+
+/* ---------- 0. Language class aliases ---------------------------------------
+   Theme has .lang-ar/.lang-ur/.lang-en; the view uses long names + $lang['class'] */
+
+.lang-arabic {
+    font-family: var(--font-ar);
+    direction: rtl;
+    text-align: right;
+    font-feature-settings: "liga" 1, "calt" 1;
+}
+
+.lang-english,
+.lang-french,
+.lang-spanish,
+.lang-german,
+.lang-turkish,
+.lang-indonesian,
+.lang-malay,
+.lang-russian {
+    font-family: var(--font-latin);
+    line-height: 1.75;
+}
+
+.lang-english {
+    font-family: var(--font-en);
+}
+
+.lang-urdu {
+    font-family: var(--font-ur);
+    direction: rtl;
+    text-align: right;
+    line-height: 2.6;
+    word-spacing: .05em;
+}
+
+.lang-persian {
+    font-family: var(--font-fa);
+    direction: rtl;
+    text-align: right;
+    line-height: 2;
+}
+
+.lang-pashto,
+.lang-sindhi,
+.lang-kurdish,
+.lang-uyghur {
+    font-family: var(--font-ar-ui);
+    direction: rtl;
+    text-align: right;
+    line-height: 2.1;
+}
+
+.lang-bengali {
+    font-family: var(--font-bn);
+    line-height: 2;
+}
+
+.lang-hindi {
+    font-family: var(--font-hi);
+    line-height: 1.95;
+}
+
+.lang-tamil {
+    font-family: var(--font-ta);
+    line-height: 2;
+}
+
+.lang-malayalam {
+    font-family: var(--font-ml);
+    line-height: 2.1;
+}
+
+.lang-thai {
+    font-family: var(--font-th);
+    line-height: 2;
+}
+
+.lang-chinese {
+    font-family: var(--font-zh);
+    line-height: 1.9;
+}
+
+.lang-japanese {
+    font-family: var(--font-ja);
+    line-height: 1.95;
+}
+
+.lang-korean {
+    font-family: var(--font-ko);
+    line-height: 1.9;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* ---------- 1. Page wrapper -------------------------------------------------- */
+
+.sr {
+    --sr-top: 0px;
+    /* set to your navbar height if the navbar is sticky/fixed */
+    width: min(100% - 1rem, 58rem);
+    margin-inline: auto;
+    padding-block: .75rem 4rem;
+}
+
+@media (min-width: 576px) {
+    .sr {
+        width: min(100% - 2rem, 58rem);
+        padding-block: 1rem 4rem;
+    }
+}
+
+@media (min-width: 1400px) {
+    .sr {
+        width: min(100% - 4rem, 62rem);
+    }
+}
+
+.sr-ayahs {
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+    transition: opacity .2s;
+}
+
+
+/* ---------- 2. Compact header ------------------------------------------------- */
+
+.sr-head {
+    position: relative;
+    padding: .65rem clamp(.65rem, 3vw, 1.1rem) .7rem;
+    background: radial-gradient(ellipse 60% 100% at 50% 0, rgba(var(--qt-primary-rgb), .10), transparent 70%), var(--qt-surface);
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius-lg);
+    box-shadow: var(--qt-shadow);
+}
+
+.sr-head::after {
+    content: "";
+    position: absolute;
+    inset-inline: 1.25rem;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--qt-gold), transparent);
+    pointer-events: none;
+}
+
+
+/* prev | title | next in ONE row */
+
+.sr-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: .5rem;
+}
+
+.sr-bar>:first-child {
+    justify-self: start;
+}
+
+.sr-bar>:last-child {
+    justify-self: end;
+}
+
+.sr-title {
+    text-align: center;
+    line-height: 1.15;
+}
+
+.sr-title__ar {
+    margin: 0;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    line-height: 1.5;
+    color: var(--qt-arabic-text);
+    text-align: center;
+}
+
+.sr-title__en {
+    margin: 0;
+    font-family: var(--font-en);
+    font-weight: 600;
+    font-size: clamp(.88rem, 2.2vw, 1rem);
+    color: var(--qt-primary);
+}
+
+.sr-desc {
+    max-width: 44rem;
+    margin: .45rem auto 0;
+    text-align: center;
+    color: var(--qt-muted);
+    font-size: .84rem;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+/* nav buttons (header + bottom) */
+
+.sr-nav__btn,
+.sr-nav__index {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    padding: .38rem .9rem;
+    border: 1px solid var(--qt-border);
+    border-radius: 999px;
+    background: var(--qt-surface);
+    color: var(--qt-muted);
+    font-size: .84rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: border-color .2s, color .2s, background-color .2s, transform .2s;
+}
+
+.sr-nav__btn:hover,
+.sr-nav__btn:focus-visible,
+.sr-nav__index:hover,
+.sr-nav__index:focus-visible {
+    border-color: var(--qt-primary);
+    color: var(--qt-primary);
+    background: var(--qt-primary-soft);
+}
+
+.sr-nav__btn[rel="prev"]:hover {
+    transform: translateX(-2px);
+}
+
+.sr-nav__btn[rel="next"]:hover {
+    transform: translateX(2px);
+}
+
+@media (max-width: 575.98px) {
+    .sr-bar .sr-nav__btn {
+        width: 2.2rem;
+        height: 2.2rem;
+        padding: 0;
+        font-size: 1rem;
+    }
+    .sr-bar .sr-nav__txt {
+        display: none;
+    }
+}
+
+.sr-nav--bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-top: 1.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--qt-border);
+}
+
+.sr-nav--bottom .sr-nav__btn[rel="next"] {
+    margin-inline-start: auto;
+}
+
+
+/* facts strip: index link + details as compact pills */
+
+.sr-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    margin-top: .55rem;
+}
+
+.sr-facts {
+    display: contents;
+}
+
+.sr-facts>div {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .35rem;
+    padding: .2rem .65rem;
+    background: var(--qt-surface-2);
+    border: 1px solid var(--qt-border);
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.sr-facts dt {
+    margin: 0;
+    font-size: .64rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--qt-muted);
+}
+
+.sr-facts dd {
+    margin: 0;
+    font-size: .84rem;
+    font-weight: 700;
+    color: var(--qt-text);
+}
+
+.sr-strip .sr-nav__index {
+    padding: .2rem .75rem;
+    font-size: .78rem;
+    background: var(--qt-primary-soft);
+    color: var(--qt-primary);
+    border-color: transparent;
+}
+
+.sr-chip {
+    display: inline-block;
+    margin: 0 0 0 .2rem;
+    padding: 0 .5rem;
+    border: 1px solid var(--qt-gold);
+    border-radius: 999px;
+    background: var(--qt-gold-soft);
+    color: var(--qt-gold);
+    font-family: var(--font-ui);
+    font-size: .7rem;
+    font-weight: 700;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: background-color .2s, color .2s;
+}
+
+.sr-chip:hover,
+.sr-chip:focus-visible {
+    background: var(--qt-gold);
+    color: #fff;
+}
+
+
+/* phones: one swipeable line instead of wrapping into rows */
+
+@media (max-width: 767.98px) {
+    .sr-strip {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding-bottom: .1rem;
+    }
+    .sr-strip::-webkit-scrollbar {
+        display: none;
+    }
+    .sr-strip>*,
+    .sr-facts>div {
+        flex: 0 0 auto;
+    }
+}
+
+
+/* ---------- 3. Filters card (sticky ONLY on large screens) --------------------- */
+
+.sr-tools {
+    position: relative;
+    margin-top: .75rem;
+    padding: .65rem .75rem;
+    background: var(--qt-surface);
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius-lg);
+    box-shadow: var(--qt-shadow);
+}
+
+.sr-tools__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .6rem;
+    align-items: end;
+}
+
+.sr-field {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    min-width: 0;
+    margin: 0;
+}
+
+.sr-field>span {
+    font-size: .66rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--qt-muted);
+    line-height: 1;
+}
+
+.sr-tools .form-select,
+.sr-tools .form-control {
+    min-width: 0;
+    min-height: 2.3rem;
+    padding-block: .35rem;
+    font-size: .88rem;
+    border-radius: var(--bs-border-radius);
+}
+
+.sr-field--jump {
+    grid-column: 1 / -1;
+}
+
+.sr-jump,
+.sr-auto {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.sr-jump .form-control {
+    flex: 1 1 auto;
+}
+
+.sr-auto .form-select {
+    flex: 0 0 5.5rem;
+    width: 5.5rem;
+}
+
+.sr-btn {
+    flex: 0 0 auto;
+    min-height: 2.3rem;
+    padding: .3rem 1.1rem;
+    border: 1px solid var(--qt-primary);
+    border-radius: var(--bs-border-radius);
+    background: var(--qt-primary);
+    color: var(--qt-on-primary);
+    font-weight: 600;
+    font-size: .88rem;
+    transition: background-color .15s, border-color .15s;
+}
+
+.sr-btn:hover,
+.sr-btn:focus-visible {
+    background: var(--qt-primary-dark);
+    border-color: var(--qt-primary-dark);
+}
+
+
+/* secondary options: auto scroll + switches */
+
+.sr-more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: .6rem 1.5rem;
+    margin-top: .65rem;
+    padding-top: .65rem;
+    border-top: 1px dashed var(--qt-border);
+}
+
+.sr-switches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem 1.25rem;
+    align-items: center;
+}
+
+.sr-tools .form-check {
+    margin: 0;
+    min-height: 0;
+}
+
+.sr-tools .form-check-label {
+    font-size: .86rem;
+    font-weight: 600;
+    color: var(--qt-text);
+}
+
+.sr-tools .form-switch .form-check-input {
+    cursor: pointer;
+}
+
+
+/* "Options" toggle: CSS-only (checkbox), only exists on large screens */
+
+.sr-opt-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sr-opt-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    min-height: 2.3rem;
+    padding: .3rem .9rem;
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius);
+    background: var(--qt-surface);
+    color: var(--qt-muted);
+    font-size: .85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color .15s, color .15s, border-color .15s;
+}
+
+.sr-opt-btn svg {
+    width: 1rem;
+    height: 1rem;
+    transition: transform .25s;
+}
+
+.sr-opt-btn:hover,
+.sr-tools:has(.sr-opt-input:focus-visible) .sr-opt-btn {
+    border-color: var(--qt-primary);
+    color: var(--qt-primary);
+}
+
+.sr-tools:has(.sr-opt-input:checked) .sr-opt-btn {
+    background: var(--qt-primary-soft);
+    border-color: var(--qt-primary);
+    color: var(--qt-primary);
+}
+
+.sr-tools:has(.sr-opt-input:checked) .sr-opt-btn svg {
+    transform: rotate(60deg);
+}
+
+
+/* tablets: three controls in one row */
+
+@media (min-width: 576px) {
+    .sr-tools__row {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr);
+    }
+    .sr-field--jump {
+        grid-column: auto;
+    }
+}
+
+
+/* large screens: sticky + one compact row + collapsible options */
+
+@media (min-width: 992px) {
+    .sr-tools {
+        position: sticky;
+        top: calc(var(--sr-top) + .5rem);
+        z-index: 1020;
+        background: color-mix(in srgb, var(--qt-surface) 94%, transparent);
+        -webkit-backdrop-filter: blur(10px) saturate(1.3);
+        backdrop-filter: blur(10px) saturate(1.3);
+    }
+    .sr-tools__row {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr) auto;
+    }
+    .sr-opt-btn {
+        display: inline-flex;
+    }
+    .sr-more {
+        display: none;
+    }
+    .sr-opt-input:checked~.sr-more {
+        display: flex;
+    }
+}
+
+
+/* ---------- 4. Bismillah ------------------------------------------------------- */
+
+.sr-bismillah {
+    margin: .9rem 0 .1rem;
+    padding: .8rem 1rem;
+    text-align: center;
+    background: var(--qt-gold-soft);
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius-lg);
+}
+
+.sr-bismillah__ar {
+    margin: 0;
+    font-size: clamp(1.6rem, 5vw, 2.3rem);
+    line-height: 2;
+    color: var(--qt-gold);
+    text-align: center;
+}
+
+.sr-bismillah__tl {
+    margin: .1rem 0 0;
+    font-size: var(--qt-tr-size);
+    color: var(--qt-muted);
+    text-align: center;
+}
+
+
+/* ---------- 5. Ayah card -------------------------------------------------------- */
+
+.sr-ayahs {
+    margin-top: .9rem;
+}
+
+.ay {
+    position: relative;
+    padding: .9rem clamp(.9rem, 3vw, 1.5rem) 1.1rem;
+    background: var(--qt-surface);
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius-lg);
+    overflow: hidden;
+    /* jump target lands below the sticky filters on large screens */
+    scroll-margin-top: calc(var(--sr-top) + 1rem);
+    transition: border-color .2s, box-shadow .25s;
+}
+
+@media (min-width: 992px) {
+    .ay {
+        scroll-margin-top: calc(var(--sr-top) + 6.5rem);
+    }
+    .sr:has(.sr-opt-input:checked) .ay {
+        scroll-margin-top: calc(var(--sr-top) + 10.5rem);
+    }
+}
+
+.ay::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: var(--qt-gold);
+    transform: scaleY(0);
+    transition: transform .25s ease;
+}
+
+.ay:hover {
+    border-color: rgba(var(--qt-primary-rgb), .55);
+}
+
+.ay:hover::before {
+    transform: scaleY(1);
+}
+
+.ay__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem .7rem;
+    margin-bottom: .7rem;
+}
+
+.ay__num {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding-inline: .3rem;
+    font-weight: 700;
+    font-size: .82rem;
+    line-height: 1;
+    color: var(--qt-gold);
+    border: 1.5px solid var(--qt-gold);
+    border-radius: 50%;
+    transition: background-color .25s, color .25s, transform .25s;
+}
+
+.ay:hover .ay__num {
+    background: var(--qt-gold);
+    color: #fff;
+    transform: rotate(8deg);
+}
+
+.ay__meta {
+    margin-inline-start: auto;
+    font-size: .76rem;
+    color: var(--qt-muted);
+    text-align: end;
+}
+
+.ay__ar {
+    margin: 0 0 .8rem;
+    font-size: var(--qt-ar-size);
+    line-height: 2.3;
+    color: var(--qt-arabic-text);
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.ay__translit {
+    margin: 0 0 .8rem;
+    padding: .55rem .8rem;
+    background: var(--qt-surface-2);
+    border-inline-start: 2px solid var(--qt-border);
+    border-radius: var(--bs-border-radius);
+    font-size: calc(var(--qt-tr-size) * .92);
+    font-style: italic;
+    color: var(--qt-muted);
+    line-height: 1.7;
+}
+
+.ay__tl {
+    margin: 0;
+    padding-top: .8rem;
+    border-top: 1px dashed var(--qt-border);
+    font-size: var(--qt-tr-size);
+    color: var(--qt-text);
+    overflow-wrap: anywhere;
+    transition: opacity .2s;
+}
+
+.ay__tl.lang-urdu,
+.ay__tl.lang-ur {
+    font-size: calc(var(--qt-tr-size) * 1.15);
+}
+
+.ay__tl.lang-chinese,
+.ay__tl.lang-japanese,
+.ay__tl.lang-korean,
+.ay__tl.lang-zh,
+.ay__tl.lang-ja,
+.ay__tl.lang-ko {
+    font-size: calc(var(--qt-tr-size) * 1.05);
+}
+
+.ay__tl.is-missing {
+    font-family: var(--font-ui);
+    font-size: .86rem;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--qt-muted);
+    direction: ltr;
+    text-align: left;
+}
+
+
+/* hide toggles (classes set by surahshow.js on #surahPage) */
+
+.sr.hide-translit .ay__translit,
+.sr.hide-translation .ay__tl,
+.sr.hide-translation .sr-bismillah__tl {
+    display: none;
+}
+
+.sr.hide-translation .ay__ar {
+    margin-bottom: 0;
+}
+
+
+/* translations loading (class set by surahshow.js) */
+
+.sr.is-loading .ay__tl,
+.sr.is-loading .sr-bismillah__tl {
+    opacity: .4;
+    animation: srPulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes srPulse {
+    to {
+        opacity: .7;
+    }
+}
+
+
+/* ---------- 6. Sajdah ayah: golden theme --------------------------------------- */
+
+.ay--sajdah {
+    background: linear-gradient(135deg, var(--qt-gold-soft) 0%, color-mix(in srgb, var(--qt-gold-soft) 40%, var(--qt-surface)) 55%, var(--qt-surface) 100%);
+    border-color: var(--qt-gold);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--qt-gold) 25%, transparent), 0 8px 24px color-mix(in srgb, var(--qt-gold) 18%, transparent);
+}
+
+.ay--sajdah:hover {
+    border-color: var(--qt-gold);
+}
+
+.ay--sajdah::before {
+    transform: scaleY(1);
+    width: 4px;
+}
+
+.ay--sajdah .ay__head {
+    padding-bottom: .55rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--qt-gold) 35%, transparent);
+}
+
+.ay--sajdah .ay__num {
+    background: var(--qt-gold);
+    color: #fff;
+}
+
+.ay__sajdah {
+    padding: .12rem .7rem;
+    border-radius: 999px;
+    background: var(--qt-gold);
+    color: #fff;
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+.ay--sajdah .ay__translit {
+    background: color-mix(in srgb, var(--qt-surface) 55%, transparent);
+    border-inline-start-color: var(--qt-gold);
+}
+
+.ay--sajdah .ay__tl {
+    border-top-color: color-mix(in srgb, var(--qt-gold) 40%, transparent);
+}
+
+
+/* ---------- 7. Jump highlight: themed bg for 2s, then gone ---------------------
+   surahshow.js adds .is-target on jump and restarts it each time.
+   The animation fades everything out by itself, so no JS timer is needed. */
+
+.ay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(var(--qt-primary-rgb), .16);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ay.is-target {
+    animation: srRing 2s ease-out .3s both;
+}
+
+.ay.is-target::after {
+    animation: srTint 2s ease-out .3s both;
+}
+
+@keyframes srTint {
+    0% {
+        opacity: 0;
+    }
+    10%,
+    65% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes srRing {
+    0%,
+    65% {
+        outline: 3px solid rgba(var(--qt-primary-rgb), .55);
+        outline-offset: 0;
+    }
+    100% {
+        outline: 3px solid rgba(var(--qt-primary-rgb), 0);
+        outline-offset: 0;
+    }
+}
+
+
+/* ---------- 8. Floating stop button --------------------------------------------- */
+
+.sr-autofab {
+    position: fixed;
+    inset-inline: 0;
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    z-index: 1040;
+    width: max-content;
+    max-width: calc(100% - 2rem);
+    margin-inline: auto;
+    padding: .6rem 1.3rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--qt-primary);
+    color: var(--qt-on-primary);
+    font-weight: 700;
+    font-size: .88rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+    transition: background-color .15s, transform .2s;
+}
+
+.sr-autofab:hover,
+.sr-autofab:focus-visible {
+    background: var(--qt-primary-dark);
+    transform: translateY(-2px);
+}
+
+
+/* ---------- 9. Small screens ----------------------------------------------------- */
+
+@media (max-width: 575.98px) {
+    .ay {
+        padding: .8rem .85rem 1rem;
+    }
+    .ay__meta {
+        flex: 1 0 100%;
+        margin-inline-start: 0;
+        text-align: start;
+    }
+    .ay__ar {
+        line-height: 2.15;
+    }
+    .sr-more {
+        gap: .6rem 1rem;
+    }
+    .sr-nav--bottom .sr-nav__btn {
+        padding: .38rem .75rem;
+        font-size: .8rem;
+    }
+}
+
+@media (max-width: 359.98px) {
+    .sr-nav--bottom .sr-nav__btn {
+        padding: .35rem .55rem;
+        font-size: .74rem;
+    }
+}
+
+
+/* ---------- 10. Motion + print ---------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .ay:hover .ay__num,
+    .sr-nav__btn:hover,
+    .sr-autofab:hover {
+        transform: none;
+    }
+    /* theme forces durations to ~0; keep the 2s highlight (opacity/outline only, no movement) */
+    .ay.is-target,
+    .ay.is-target::after {
+        animation-duration: 2s !important;
+        animation-delay: 0s !important;
+    }
+}
+
+@media print {
+    .sr-bar .sr-nav__btn,
+    .sr-nav--bottom,
+    .sr-tools,
+    .sr-autofab,
+    .sr-chip,
+    .sr-strip .sr-nav__index {
+        display: none !important;
+    }
+    .sr {
+        width: 100%;
+    }
+    .ay {
+        break-inside: avoid;
+        box-shadow: none;
+        border-color: #ccc;
+    }
+}

@@ -16,6 +16,9 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('customcss/theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('customcss/home-hero.css') }}">
+    <link rel="stylesheet" href="{{ asset('customcss/surahs.css') }}">
+    <link rel="stylesheet" href="{{ asset('customcss/show.css') }}">
     <script src="{{ asset('js/bootstrap.bundle.js') }}"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -45,10 +48,23 @@
 
 
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
+                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('/') ? 'active fw-bold' : '' }}"
                                 href="{{ url('/') }}">
+                                Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('surahs/*') ? 'active fw-bold' : '' }}"
+                                href="{{ url('/surahs') }}">
                                 The Holy Quran
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('surahs') ? 'active fw-bold' : '' }}"
+                                href="{{ url('/surahs') }}">
+                                View All Surahs
                             </a>
                         </li>
 

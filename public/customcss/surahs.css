@@ -1,0 +1,282 @@
+/* ==========================================================================
+   SURAHS VIEW  —  surahs.css
+   Styles for resources/views/surahs.blade.php only.
+
+   Load order:
+   1. bootstrap.min.css
+   2. quran-theme.css   (defines the --qt-* color tokens and --font-* vars
+                          this file uses, plus .lang-ar, .badge-soft, .badge-gold)
+   3. surahs.css        (this file)
+   ========================================================================== */
+
+
+/* ---------- Page header (title + search + filter chips) ------------------ */
+
+.page-head {
+    padding: clamp(2rem, 5vw, 3.25rem) 0 1.5rem;
+    background: radial-gradient(ellipse 55% 90% at 50% 0, rgba(var(--qt-primary-rgb), .10), transparent 70%), var(--qt-bg);
+    border-bottom: 1px solid var(--qt-border);
+}
+
+.page-title {
+    font-family: var(--font-en);
+    font-weight: 600;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    margin-bottom: .35rem;
+}
+
+.page-sub {
+    color: var(--qt-muted);
+    margin-bottom: 0;
+}
+
+.surah-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .surah-toolbar {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.surah-search {
+    position: relative;
+    flex: 1 1 auto;
+    max-width: 28rem;
+}
+
+.surah-search .form-control {
+    padding-inline-start: 2.75rem;
+    padding-block: .7rem;
+    border-radius: 999px;
+}
+
+.surah-search-icon {
+    position: absolute;
+    inset-inline-start: 1rem;
+    top: 50%;
+    width: 1.15rem;
+    height: 1.15rem;
+    transform: translateY(-50%);
+    color: var(--qt-muted);
+    pointer-events: none;
+}
+
+.surah-filters {
+    display: flex;
+    gap: .5rem;
+    overflow-x: auto;
+    padding-bottom: .15rem;
+    scrollbar-width: none;
+}
+
+.surah-filters::-webkit-scrollbar {
+    display: none;
+}
+
+.surah-filters .lang-chip {
+    flex: 0 0 auto;
+}
+
+.chip-count {
+    font-size: .75rem;
+    opacity: .75;
+    font-weight: 600;
+}
+
+.surah-result-count {
+    color: var(--qt-muted);
+    font-size: .9rem;
+    margin: 1.5rem 0 1rem;
+}
+
+
+/* ---------- Grid ----------------------------------------------------------- */
+
+.surah-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr));
+    gap: 1rem;
+    padding-bottom: 4rem;
+}
+
+
+/* ---------- Card ------------------------------------------------------------ */
+
+.surah-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    background: var(--qt-surface);
+    border: 1px solid var(--qt-border);
+    border-radius: var(--bs-border-radius-lg);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+    transition: transform .25s ease, border-color .2s ease, box-shadow .25s ease, opacity .5s ease;
+}
+
+.surah-card::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: var(--qt-gold);
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform .25s ease;
+}
+
+.surah-card:hover,
+.surah-card:focus-visible {
+    transform: translateY(-3px);
+    border-color: var(--qt-primary);
+    box-shadow: var(--qt-shadow);
+    color: inherit;
+}
+
+.surah-card:hover::before,
+.surah-card:focus-visible::before {
+    transform: scaleY(1);
+}
+
+.surah-card-no {
+    flex: 0 0 auto;
+    width: 2.7rem;
+    height: 2.7rem;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: .9rem;
+    line-height: 1;
+    color: var(--qt-gold);
+    border: 1.5px solid var(--qt-gold);
+    border-radius: 50%;
+    transition: background-color .25s, color .25s, transform .25s;
+}
+
+.surah-card:hover .surah-card-no {
+    background: var(--qt-gold);
+    color: #fff;
+    transform: rotate(8deg);
+}
+
+.surah-card-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.surah-card-en {
+    font-family: var(--font-en);
+    font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.surah-card-sub {
+    color: var(--qt-muted);
+    font-size: .85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.surah-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-top: .45rem;
+}
+
+.surah-card-meta .badge {
+    font-weight: 600;
+    font-size: .7rem;
+}
+
+.surah-card-ar {
+    flex: 0 0 auto;
+    font-family: var(--font-ar);
+    font-size: 1.75rem;
+    line-height: 1.7;
+    color: var(--qt-arabic-text);
+    direction: rtl;
+    transition: color .2s;
+}
+
+.surah-card:hover .surah-card-ar {
+    color: var(--qt-primary);
+}
+
+
+/* ---------- Staggered scroll-in animation ----------------------------------
+   .reveal-ready is added by the view's JS via IntersectionObserver;
+   each card gets .is-in as it scrolls into view. */
+
+.reveal-ready .surah-card:not(.is-in) {
+    opacity: 0;
+    transform: translateY(14px);
+}
+
+.reveal-ready .surah-card.is-in {
+    transition-delay: calc(var(--i, 0) * 35ms);
+}
+
+.reveal-ready .surah-card.is-in:hover {
+    transition-delay: 0s;
+}
+
+
+/* ---------- Empty state (no search results) --------------------------------- */
+
+.surah-empty {
+    text-align: center;
+    padding: 3rem 1rem 5rem;
+    color: var(--qt-muted);
+}
+
+.surah-empty-mark {
+    display: inline-grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-bottom: 1rem;
+    border: 1.5px solid var(--qt-gold);
+    border-radius: 50%;
+    color: var(--qt-gold);
+    font-size: 1.4rem;
+}
+
+
+/* ---------- Responsive + motion --------------------------------------------- */
+
+@media (max-width: 575.98px) {
+    .surah-card {
+        padding: .85rem 1rem;
+    }
+    .surah-card-ar {
+        font-size: 1.5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal-ready .surah-card:not(.is-in) {
+        opacity: 1;
+        transform: none;
+    }
+    .surah-card:hover,
+    .surah-card:hover .surah-card-no {
+        transform: none;
+    }
+}
