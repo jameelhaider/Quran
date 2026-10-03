@@ -4,7 +4,22 @@
 
 @section('content')
 
-    <link rel="stylesheet" href="{{ asset('css/surahshow.css') }}">
+    @php
+        $sizeOptions = [
+            'x-small' => 'X-Small',
+            'small' => 'Small',
+            'normal' => 'Normal',
+            'large' => 'Large',
+            'x-large' => 'X-Large',
+        ];
+        $speedOptions = ['0.5', '0.75', '1', '1.25', '1.5', '2', '2.5', '3', '4', '4.5', '5'];
+    @endphp
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Lateef&family=Noto+Naskh+Arabic&family=Scheherazade+New:wght@400;700&display=swap"
+        rel="stylesheet">
+
 
     <div class="sr" id="surahPage">
 
@@ -117,8 +132,8 @@
 
                 {{-- large screens only: toggles the extra options below --}}
                 <label class="sr-opt-btn" for="srOptToggle">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="3" />
                         <path
                             d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -137,14 +152,11 @@
                             <input class="form-check-input" type="checkbox" id="autoScrollToggle" role="switch">
                             <span class="form-check-label">Enable</span>
                         </label>
-                        <select id="autoScrollSpeed" class="form-select form-select-sm"
-                            aria-label="Auto scroll speed">
-                            <option value="1">1x</option>
-                            <option value="1.25">1.25x</option>
-                            <option value="1.5">1.5x</option>
-                            <option value="2">2x</option>
-                            <option value="2.5">2.5x</option>
-                            <option value="3">3x</option>
+                        <select id="autoScrollSpeed" class="form-select form-select-sm" aria-label="Auto scroll speed">
+                            @foreach ($speedOptions as $sp)
+                                <option value="{{ $sp }}" @selected($sp === '1')>{{ $sp }}x
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -159,6 +171,53 @@
                         <span class="form-check-label">Translation</span>
                     </label>
                 </div>
+
+
+
+
+                {{-- font + sizes --}}
+                <div class="sr-appearance">
+                    <label class="sr-field">
+                        <span>Arabic font</span>
+                        <select id="arFontSelect" class="form-select" aria-label="Arabic font">
+                            <option value="default" selected>Quranic font (Default)</option>
+                            {{-- <option value="amiri">Amiri Quran</option> --}}
+                            <option value="scheherazade">Scheherazade New</option>
+                            <option value="naskh">Noto Naskh Arabic</option>
+                            <option value="lateef">Lateef</option>
+                        </select>
+                    </label>
+
+                    <label class="sr-field">
+                        <span>Ayah size</span>
+                        <select id="arSizeSelect" class="form-select" aria-label="Ayah font size">
+                            @foreach ($sizeOptions as $val => $label)
+                                <option value="{{ $val }}" @selected($val === 'normal')>{{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+
+                    <label class="sr-field">
+                        <span>Translation size</span>
+                        <select id="tlSizeSelect" class="form-select" aria-label="Translation font size">
+                            @foreach ($sizeOptions as $val => $label)
+                                <option value="{{ $val }}" @selected($val === 'normal')>{{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+
+                    <label class="sr-field">
+                        <span>Transliteration size</span>
+                        <select id="tiSizeSelect" class="form-select" aria-label="Transliteration font size">
+                            @foreach ($sizeOptions as $val => $label)
+                                <option value="{{ $val }}" @selected($val === 'normal')>{{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+                </div>
             </div>
         </section>
 
@@ -168,7 +227,7 @@
                 <p class="sr-bismillah__ar lang-arabic" dir="rtl">{{ $bismillah }}</p>
                 @if ($bismillahTranslation)
                     <p class="sr-bismillah__tl {{ $lang['class'] }}" dir="{{ $lang['rtl'] ? 'rtl' : 'ltr' }}"
-                        id="bismillahTranslation">{{ $bismillahTranslation }}</p>
+                        id="bismillahTranslation">{!! $bismillahTranslation !!}</p>
                 @else
                     <p class="sr-bismillah__tl" id="bismillahTranslation" hidden></p>
                 @endif
@@ -191,14 +250,20 @@
                     </header>
 
                     <p class="ay__ar lang-arabic" dir="rtl">{{ $ayah->arabic_text }}</p>
-
                     @if ($ayah->transliteration)
-                        <p class="ay__translit lang-english">{{ $ayah->transliteration }}</p>
+                        <p class="ay__translit lang-english">{!! $ayah->transliteration !!}</p>
                     @endif
-
-                    <p class="ay__tl {{ $lang['class'] }} {{ $ayah->translation ? '' : 'is-missing' }}"
+                    <div class="ay__tl {{ $lang['class'] }} {{ $ayah->translation ? '' : 'is-missing' }}"
                         dir="{{ $lang['rtl'] ? 'rtl' : 'ltr' }}" data-translation>
-                        {{ $ayah->translation ?: 'No translation available for this translator.' }}</p>
+                        @if ($ayah->translation)
+                            {!! $ayah->translation !!}
+                        @else
+                            No translation available for this translator.
+                        @endif
+                    </div>
+
+
+
                 </article>
             @endforeach
         </main>
@@ -227,6 +292,7 @@
     <script>
         window.QURAN_PAGE = @json($config);
     </script>
+
     <script src="{{ asset('customjs/surahshow.js') }}"></script>
 
 @endsection

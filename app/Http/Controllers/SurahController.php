@@ -9,20 +9,13 @@ class SurahController extends Controller
 {
     private const RTL_CODES = ['ur', 'ar', 'fa', 'ps', 'sd', 'ug', 'he'];
     private const BISMILLAH = 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ';
-
-    /** GET /surahs/{number} */
     public function show(int $number)
     {
         $surah = DB::table('surahs')->where('number', $number)->first();
         abort_if(! $surah, 404);
-
         $lastNumber = (int) DB::table('surahs')->where('quran_id', $surah->quran_id)->max('number');
         $quran      = DB::table('qurans')->where('id', $surah->quran_id)->first();
-
-        // Default: Urdu + first added translator of that language
         $languages = $this->languages();
-
-        // page opens with Urdu (or the first language that has translators)
         $usable = collect($languages)->filter(fn ($l) => ! empty($l['translators']))->values();
         abort_if($usable->isEmpty(), 500, 'No languages with translators found.');
 
@@ -41,6 +34,11 @@ class SurahController extends Controller
                 'a.ayah_number', 'a.arabic_text', 'a.transliteration', 'a.page_number',
                 'a.juz_number', 'a.hizb_number', 'a.is_sajdah', 'at.translation',
             ]);
+
+            $ayahs->each(function ($a) {
+    $a->translation     = $this->html($a->translation);
+    $a->transliteration = $this->html($a->transliteration);
+});
 
         $sajdahAyahs = $ayahs->where('is_sajdah', 1)->pluck('ayah_number')->values();
 
@@ -86,7 +84,7 @@ class SurahController extends Controller
             'nextNumber'           => $number < $lastNumber ? $number + 1 : null,
             'showBismillah'        => ! in_array($number, [1, 9], true), // Al-Fatihah has it as ayah 1
             'bismillah'            => self::BISMILLAH,
-            'bismillahTranslation' => $this->bismillahTranslation($lang['id'], $tr['id']),
+            'bismillahTranslation' => $this->html($this->bismillahTranslation($lang['id'], $tr['id'])),
             'languages'            => $languages,
             'lang'                 => $lang,
             'translator'           => $tr,
@@ -94,7 +92,6 @@ class SurahController extends Controller
         ]);
     }
 
-    /** GET /surahs/{number}/translations?language_id=&translator_id=  (JSON; page URL is untouched) */
     public function translations(Request $request, int $number)
     {
         $data = $request->validate([
@@ -114,12 +111,13 @@ class SurahController extends Controller
                 ->where('at.translator_id', $data['translator_id'])
                 ->orderBy('a.ayah_number')
                 ->get(['a.ayah_number as n', 'at.translation as t'])
-                ->map(fn ($r) => ['n' => (int) $r->n, 't' => $this->clean($r->t)])
+                ->map(fn ($r) => ['n' => (int) $r->n, 't' => $this->html($r->t)])
                 ->all();
 
-            $bismillah = $this->clean(
-                $this->bismillahTranslation($data['language_id'], $data['translator_id'])
-            );
+
+            $bismillah = $this->html(
+    $this->bismillahTranslation($data['language_id'], $data['translator_id'])
+);
 
             return response()->json(
                 ['items' => $items, 'bismillah' => $bismillah],
@@ -135,26 +133,15 @@ class SurahController extends Controller
             ], 500);
         }
     }
-
-    /** Removes invalid UTF-8 bytes so json_encode can never fail on stored text. */
     private function clean(?string $text): ?string
     {
         return $text === null ? null : mb_scrub($text, 'UTF-8');
     }
-
-    /**
-     * Every language in the languages table (even ones with no translators yet). A translator belongs to a language when
-     * translators.language matches the language name or code (case-insensitive), or when
-     * it already has rows in ayah_translations for that language.
-     * Translators are ordered oldest first (by id).
-     */
     private function languages(): array
     {
         return (function () {
             $languages   = DB::table('languages')->orderBy('name')->get();
             $translators = DB::table('translators')->orderBy('id')->get();
-
-            // [language_id => [translator_id, ...]] that actually have translation rows
             $withData = DB::table('ayah_translations')
                 ->select('language_id', 'translator_id')->distinct()->get()
                 ->groupBy('language_id')
@@ -179,8 +166,6 @@ class SurahController extends Controller
                     'name'     => trim($t->name),
                     'has_data' => in_array((int) $t->id, $dataIds, true),
                 ])->values()->all();
-
-                // default = first added translator that has translations (falls back to first added)
                 $default = collect($mapped)->firstWhere('has_data', true) ?? ($mapped[0] ?? null);
 
                 $result[] = [
@@ -209,6 +194,15 @@ class SurahController extends Controller
             ->where('at.translator_id', $translatorId)
             ->value('at.translation');
     }
+private function html(?string $text): ?string
+{
+    $text = $this->clean($text);
+    if ($text === null) {
+        return null;
+    }
+    $text = strip_tags($text, '<u><b><i><em><strong><sup><sub>');
+    return preg_replace('/<(\/?)(u|b|i|em|strong|sup|sub)\b[^>]*>/i', '<$1$2>', $text);
+}
 
     private function range($values): string
     {
