@@ -14,6 +14,8 @@
         ];
         $speedOptions = ['0.5', '0.75', '1', '1.25', '1.5', '2', '2.5', '3', '4', '4.5', '5'];
     @endphp
+
+    {{-- Arabic fonts (the default option uses the theme's Quranic font and needs nothing extra) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -172,8 +174,23 @@
                     </label>
                 </div>
 
-
-
+                {{-- audio --}}
+                <div class="sr-audio">
+                    <label class="sr-field">
+                        <span>Reciter</span>
+                        <select id="reciterSelect" class="form-select" aria-label="Reciter" @disabled(empty($reciters))>
+                            @forelse ($reciters as $r)
+                                <option value="{{ $r }}">{{ $r }}</option>
+                            @empty
+                                <option value="">No audio yet</option>
+                            @endforelse
+                        </select>
+                    </label>
+                    <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggleAutoNext" checked>
+                        <span class="form-check-label">Auto-play next ayah</span>
+                    </label>
+                </div>
 
                 {{-- font + sizes --}}
                 <div class="sr-appearance">
@@ -242,6 +259,19 @@
                     <header class="ay__head">
                         <span class="ay__num"
                             title="Surah {{ $surah->number }}, ayah {{ $ayah->ayah_number }}">{{ $ayah->ayah_number }}</span>
+
+                        @if (isset($audio[$ayah->ayah_number]))
+                            <button type="button" class="ay__play" data-ayah="{{ $ayah->ayah_number }}"
+                                aria-label="Play ayah {{ $ayah->ayah_number }}" title="Play / pause recitation">
+                                <svg class="ay__ic-play" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                                <svg class="ay__ic-pause" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
+                                </svg>
+                            </button>
+                        @endif
+
                         @if ($ayah->is_sajdah)
                             <span class="ay__sajdah">&#1757; Sajdah</span>
                         @endif
@@ -250,9 +280,11 @@
                     </header>
 
                     <p class="ay__ar lang-arabic" dir="rtl">{{ $ayah->arabic_text }}</p>
+
                     @if ($ayah->transliteration)
                         <p class="ay__translit lang-english">{!! $ayah->transliteration !!}</p>
                     @endif
+
                     <div class="ay__tl {{ $lang['class'] }} {{ $ayah->translation ? '' : 'is-missing' }}"
                         dir="{{ $lang['rtl'] ? 'rtl' : 'ltr' }}" data-translation>
                         @if ($ayah->translation)
@@ -261,9 +293,6 @@
                             No translation available for this translator.
                         @endif
                     </div>
-
-
-
                 </article>
             @endforeach
         </main>

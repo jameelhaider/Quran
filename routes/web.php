@@ -31,6 +31,10 @@ Route::get('/surahs/{number}', [SurahController::class, 'show'])
 Route::get('/surahs/{number}/translations', [SurahController::class, 'translations'])
     ->whereNumber('number')->name('surahs.translations');
 
+    Route::get('/ayah-audio/{id}', [SurahController::class, 'audio'])
+    ->whereNumber('id')
+    ->name('ayah.audio');
+
 
 
 Route::middleware(['auth'])->group(function () {

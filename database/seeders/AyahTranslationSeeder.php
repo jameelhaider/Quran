@@ -11,10 +11,10 @@ class AyahTranslationSeeder extends Seeder
     public function run(): void
     {
         // CHANGE THESE to match your languages / translators tables
-        $languageId   = 9; // English
-        $translatorId = 34; // Saheeh International
+        $languageId   = 24; // English
+        $translatorId = 114; // Saheeh International
 
-        $path = database_path('seeders/data/uz.sodik.txt');
+        $path = database_path('seeders/data/it.piccardo.txt');
 
         if (!file_exists($path)) {
             $this->command->error("File not found: {$path}");

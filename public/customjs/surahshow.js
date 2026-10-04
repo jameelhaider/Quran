@@ -106,7 +106,7 @@
                var el = card.querySelector('[data-translation]');
                var text = map[card.dataset.ayah];
                if (text) {
-                   el.innerHTML = text;
+                   el.innerHTML = text; // server already stripped everything except <u><b><i>...
                } else {
                    el.textContent = MISSING;
                }
@@ -400,6 +400,173 @@
                passive: true
            });
        });
+
+       // ---------- ayah audio ----------
+       var audioMap = cfg.audio || {};
+       var reciters = cfg.reciters || [];
+       var reciterSel = document.getElementById('reciterSelect');
+       var autoNext = document.getElementById('toggleAutoNext');
+       var player = new Audio();
+       player.preload = 'none';
+       var playingAyah = null;
+       var reciter = reciters[0] || null;
+
+       if (prefs.reciter && reciters.indexOf(prefs.reciter) !== -1) reciter = prefs.reciter;
+       if (reciter) reciterSel.value = reciter;
+       autoNext.checked = prefs.autoNext !== false;
+
+       function audioFor(n) {
+           var list = audioMap[n];
+           if (!list || !reciter) return null;
+           for (var i = 0; i < list.length; i++) {
+               if (list[i].r === reciter) return list[i].u;
+           }
+           return null;
+       }
+
+       function cardOf(n) {
+           return document.getElementById('ayah-' + n);
+       }
+
+       function buttonOf(n) {
+           var c = cardOf(n);
+           return c ? c.querySelector('.ay__play') : null;
+       }
+
+       // only show a play button when the chosen reciter has that ayah
+       function refreshButtons() {
+           document.querySelectorAll('.ay__play').forEach(function(b) {
+               b.hidden = !audioFor(b.dataset.ayah);
+           });
+       }
+
+       function clearState() {
+           document.querySelectorAll('.ay.is-playing').forEach(function(c) {
+               c.classList.remove('is-playing');
+           });
+           document.querySelectorAll('.ay__play.is-buffering').forEach(function(b) {
+               b.classList.remove('is-buffering');
+           });
+       }
+
+       function stopAudio() {
+           player.pause();
+           playingAyah = null;
+           clearState();
+       }
+
+       function playAyah(n, follow) {
+           var url = audioFor(n);
+           var card = cardOf(n);
+           if (!url || !card) return false;
+
+           clearState();
+           playingAyah = n;
+           player.src = url;
+           card.classList.add('is-playing');
+
+           var btn = buttonOf(n);
+           if (btn) {
+               btn.classList.remove('is-error');
+               btn.title = 'Play / pause recitation';
+               btn.classList.add('is-buffering');
+           }
+
+           var p = player.play();
+           if (p && p.catch) {
+               p.catch(function() {
+                   /* interrupted by a newer play(), or blocked; 'error' event handles real failures */
+               });
+           }
+
+           if (follow) {
+               var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+               pauseAuto(2500);
+               card.scrollIntoView({
+                   behavior: calm ? 'auto' : 'smooth',
+                   block: 'start'
+               });
+           }
+           return true;
+       }
+
+       function nextWithAudio(from) {
+           for (var n = from + 1; n <= cfg.totalAyahs; n++) {
+               if (audioFor(n)) return n;
+           }
+           return null;
+       }
+
+       // one delegated listener for every play button
+       document.getElementById('ayahList').addEventListener('click', function(e) {
+           var btn = e.target.closest('.ay__play');
+           if (!btn) return;
+           var n = parseInt(btn.dataset.ayah, 10);
+           var card = cardOf(n);
+
+           if (playingAyah === n) { // same ayah: pause / resume
+               if (player.paused) {
+                   player.play();
+                   card.classList.add('is-playing');
+               } else {
+                   player.pause();
+                   card.classList.remove('is-playing');
+               }
+               return;
+           }
+           playAyah(n, false);
+       });
+
+       player.addEventListener('playing', function() {
+           var b = playingAyah && buttonOf(playingAyah);
+           if (b) b.classList.remove('is-buffering');
+       });
+       player.addEventListener('waiting', function() {
+           var b = playingAyah && buttonOf(playingAyah);
+           if (b) b.classList.add('is-buffering');
+       });
+       player.addEventListener('ended', function() {
+           var done = playingAyah;
+           clearState();
+           playingAyah = null;
+           if (done && autoNext.checked) {
+               var next = nextWithAudio(done);
+               if (next) playAyah(next, true);
+           }
+       });
+       player.addEventListener('error', function() {
+           if (!playingAyah || !player.getAttribute('src')) return;
+           var b = buttonOf(playingAyah);
+           if (b) {
+               b.classList.remove('is-buffering');
+               b.classList.add('is-error');
+               b.title = 'Audio file could not be loaded';
+           }
+           console.error('Audio failed to load:', player.src);
+           var failed = playingAyah;
+           clearState();
+           playingAyah = null;
+           // keep the red state on the failed button only
+           var fb = buttonOf(failed);
+           if (fb) fb.classList.add('is-error');
+       });
+
+       reciterSel.addEventListener('change', function() {
+           stopAudio();
+           reciter = reciterSel.value || null;
+           prefs.reciter = reciter;
+           writePrefs();
+           document.querySelectorAll('.ay__play.is-error').forEach(function(b) {
+               b.classList.remove('is-error');
+           });
+           refreshButtons();
+       });
+       autoNext.addEventListener('change', function() {
+           prefs.autoNext = autoNext.checked;
+           writePrefs();
+       });
+       window.addEventListener('pagehide', stopAudio);
+       refreshButtons();
 
        // ---------- jump to ayah (no hash, URL stays /surahs/N) ----------
        function jumpTo(n) {
